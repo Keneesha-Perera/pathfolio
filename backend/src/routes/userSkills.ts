@@ -54,4 +54,23 @@ router.delete('/', authenticate, async (req: AuthRequest, res: Response) => {
   }
 });
 
+// Update proficiency for an existing user-skill link
+router.put('/', authenticate, async (req: AuthRequest, res: Response) => {
+  try {
+    const { skillId, proficiency } = req.body;
+    const userId = req.userId as number;
+
+    const updated = await prisma.userSkill.update({
+      where: {
+        userId_skillId: { userId, skillId },
+      },
+      data: { proficiency },
+    });
+
+    res.json(updated);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to update skill' });
+  }
+});
+
 export default router;

@@ -43,4 +43,52 @@ router.get('/user/:userId', async (req, res) => {
   }
 });
 
+// Update a project (only the owner can update)
+router.put('/:id', authenticate, async (req: AuthRequest, res: Response) => {
+  try {
+    const id = req.params.id as string;
+    const userId = req.userId as number;
+    const { title, description, techStack, link } = req.body;
+
+    // First check the project belongs to this user
+    const existing = await prisma.project.findUnique({ where: { id: parseInt(id) } });
+    if (!existing) {
+      return res.status(404).json({ error: 'Project not found' });
+    }
+    if (existing.userId !== userId) {
+      return res.status(403).json({ error: 'Not authorized to edit this project' });
+    }
+
+    const updated = await prisma.project.update({
+      where: { id: parseInt(id) },
+      data: { title, description, techStack, link },
+    });
+
+    res.json(updated);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to update project' });
+  }
+});
+
+// Delete a project (only the owner can delete)
+router.delete('/:id', authenticate, async (req: AuthRequest, res: Response) => {
+  try {
+    const id = req.params.id as string;
+    const userId = req.userId as number;
+
+    const existing = await prisma.project.findUnique({ where: { id: parseInt(id) } });
+    if (!existing) {
+      return res.status(404).json({ error: 'Project not found' });
+    }
+    if (existing.userId !== userId) {
+      return res.status(403).json({ error: 'Not authorized to delete this project' });
+    }
+
+    await prisma.project.delete({ where: { id: parseInt(id) } });
+    res.status(204).send();
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to delete project' });
+  }
+});
+
 export default router;

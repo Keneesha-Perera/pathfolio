@@ -89,3 +89,67 @@ export async function createProject(
   }
   return res.json();
 }
+
+export async function updateProject(
+  id: number,
+  title: string,
+  description: string,
+  techStack: string[],
+  link: string,
+  token: string
+) {
+  const res = await fetch(`${API_URL}/projects/${id}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ title, description, techStack, link }),
+  });
+  if (!res.ok) {
+    const error = await res.json();
+    throw new Error(error.error || 'Failed to update project');
+  }
+  return res.json();
+}
+
+export async function deleteProject(id: number, token: string) {
+  const res = await fetch(`${API_URL}/projects/${id}`, {
+    method: 'DELETE',
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) {
+    const error = await res.json();
+    throw new Error(error.error || 'Failed to delete project');
+  }
+}
+
+export async function updateUserSkill(skillId: number, proficiency: string, token: string) {
+  const res = await fetch(`${API_URL}/user-skills`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ skillId, proficiency }),
+  });
+  if (!res.ok) {
+    const error = await res.json();
+    throw new Error(error.error || 'Failed to update skill');
+  }
+  return res.json();
+}
+
+export async function deleteUserSkill(skillId: number, token: string) {
+  const res = await fetch(`${API_URL}/user-skills`, {
+    method: 'DELETE',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ skillId }),
+  });
+  if (!res.ok) {
+    throw new Error('Failed to remove skill');
+  }
+}

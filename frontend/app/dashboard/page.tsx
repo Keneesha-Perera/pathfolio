@@ -3,7 +3,13 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { getUser, getToken, logout } from '@/lib/auth';
-import { getUserSkills, getUserProjects } from '@/lib/api';
+import {
+  getUserSkills,
+  getUserProjects,
+  deleteProject,
+  updateProject,
+  deleteUserSkill,
+} from '@/lib/api';
 import AddSkillForm from './AddSkillForm';
 import AddProjectForm from './AddProjectForm';
 
@@ -27,6 +33,8 @@ export default function DashboardPage() {
   const [skills, setSkills] = useState<Skill[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
+  const [editingProjectId, setEditingProjectId] = useState<number | null>(null);
+  const [editForm, setEditForm] = useState({ title: '', description: '', techStack: '', link: '' });
 
   const loadData = async (currentUser: { id: number; name: string; email: string }) => {
     try {
@@ -67,7 +75,61 @@ export default function DashboardPage() {
     router.push('/login');
   };
 
-  if (!user) return null; // brief flash before redirect check completes
+  const handleDeleteSkill = async (skillId: number) => {
+    const token = getToken();
+    if (!token) return;
+    if (!confirm('Remove this skill from your profile?')) return;
+
+    try {
+      await deleteUserSkill(skillId, token);
+      handleRefresh();
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleDeleteProject = async (id: number) => {
+    const token = getToken();
+    if (!token) return;
+    if (!confirm('Delete this project? This cannot be undone.')) return;
+
+    try {
+      await deleteProject(id, token);
+      handleRefresh();
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const startEditingProject = (p: Project) => {
+    setEditingProjectId(p.id);
+    setEditForm({
+      title: p.title,
+      description: p.description || '',
+      techStack: p.techStack.join(', '),
+      link: p.link || '',
+    });
+  };
+
+  const cancelEditingProject = () => {
+    setEditingProjectId(null);
+  };
+
+  const saveEditingProject = async (id: number) => {
+    const token = getToken();
+    if (!token) return;
+
+    try {
+      const techArray = editForm.techStack.split(',').map((t) => t.trim()).filter(Boolean);
+      await updateProject(id, editForm.title, editForm.description, techArray, editForm.link, token);
+      setEditingProjectId(null);
+      handleRefresh();
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  if (!user) return null;
 
   return (
     <div className="min-h-screen bg-[#FAF9F6] p-8">
@@ -100,10 +162,17 @@ export default function DashboardPage() {
                   {skills.map((s) => (
                     <span
                       key={s.skillId}
-                      className="px-3 py-1 bg-[#EEF2FF] text-[#4338CA] font-medium rounded-full text-sm border border-[#E0E7FF]"
+                      className="group flex items-center gap-1.5 px-3 py-1 bg-[#EEF2FF] text-[#4338CA] font-medium rounded-full text-sm border border-[#E0E7FF]"
                     >
                       {s.skill.name}
                       {s.proficiency && ` · ${s.proficiency}`}
+                      <button
+                        onClick={() => handleDeleteSkill(s.skillId)}
+                        className="text-[#4338CA] opacity-50 hover:opacity-100 hover:text-red-600 transition-opacity"
+                        title="Remove skill"
+                      >
+                        ×
+                      </button>
                     </span>
                   ))}
                 </div>
@@ -120,24 +189,84 @@ export default function DashboardPage() {
                 </p>
               ) : (
                 <div className="space-y-3">
-                  {projects.map((p) => (
-                    <div key={p.id} className="border-b border-[#E5E1D8] pb-3 last:border-0">
-                      <h3 className="font-medium text-[#1A1A1A]">{p.title}</h3>
-                      {p.description && (
-                        <p className="text-sm text-[#5B5952] mt-0.5">{p.description}</p>
-                      )}
-                      <div className="flex flex-wrap gap-1 mt-1">
-                        {p.techStack.map((tech) => (
-                          <span
-                            key={tech}
-                            className="text-xs bg-[#F5F3EE] text-[#5B5952] font-medium px-2 py-0.5 rounded border border-[#E5E1D8]"
+                  {projects.map((p) =>
+                    editingProjectId === p.id ? (
+                      <div key={p.id} className="border border-[#E0E7FF] bg-[#EEF2FF] rounded-lg p-3 space-y-2">
+                        <input
+                          value={editForm.title}
+                          onChange={(e) => setEditForm({ ...editForm, title: e.target.value })}
+                          className="w-full px-2 py-1 border border-[#E5E1D8] rounded text-sm"
+                          placeholder="Title"
+                        />
+                        <textarea
+                          value={editForm.description}
+                          onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
+                          className="w-full px-2 py-1 border border-[#E5E1D8] rounded text-sm"
+                          placeholder="Description"
+                          rows={2}
+                        />
+                        <input
+                          value={editForm.techStack}
+                          onChange={(e) => setEditForm({ ...editForm, techStack: e.target.value })}
+                          className="w-full px-2 py-1 border border-[#E5E1D8] rounded text-sm"
+                          placeholder="Tech stack, comma separated"
+                        />
+                        <input
+                          value={editForm.link}
+                          onChange={(e) => setEditForm({ ...editForm, link: e.target.value })}
+                          className="w-full px-2 py-1 border border-[#E5E1D8] rounded text-sm"
+                          placeholder="Link"
+                        />
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => saveEditingProject(p.id)}
+                            className="text-sm bg-[#4F46E5] text-white px-3 py-1 rounded hover:bg-[#4338CA]"
                           >
-                            {tech}
-                          </span>
-                        ))}
+                            Save
+                          </button>
+                          <button
+                            onClick={cancelEditingProject}
+                            className="text-sm text-[#5B5952] hover:text-[#1A1A1A]"
+                          >
+                            Cancel
+                          </button>
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    ) : (
+                      <div key={p.id} className="border-b border-[#E5E1D8] pb-3 last:border-0">
+                        <div className="flex justify-between items-start">
+                          <h3 className="font-medium text-[#1A1A1A]">{p.title}</h3>
+                          <div className="flex gap-2 text-xs">
+                            <button
+                              onClick={() => startEditingProject(p)}
+                              className="text-[#4F46E5] hover:underline"
+                            >
+                              Edit
+                            </button>
+                            <button
+                              onClick={() => handleDeleteProject(p.id)}
+                              className="text-red-500 hover:underline"
+                            >
+                              Delete
+                            </button>
+                          </div>
+                        </div>
+                        {p.description && (
+                          <p className="text-sm text-[#5B5952] mt-0.5">{p.description}</p>
+                        )}
+                        <div className="flex flex-wrap gap-1 mt-1">
+                          {p.techStack.map((tech) => (
+                            <span
+                              key={tech}
+                              className="text-xs bg-[#F5F3EE] text-[#5B5952] font-medium px-2 py-0.5 rounded border border-[#E5E1D8]"
+                            >
+                              {tech}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )
+                  )}
                 </div>
               )}
               <AddProjectForm onProjectAdded={handleRefresh} />
