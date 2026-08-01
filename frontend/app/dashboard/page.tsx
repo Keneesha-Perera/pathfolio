@@ -53,9 +53,9 @@ export default function DashboardPage() {
     }
 
     (async () => {
-    setUser(currentUser);
-    await loadData(currentUser);
-  })();
+      setUser(currentUser);
+      await loadData(currentUser);
+    })();
   }, [router]);
 
   const handleRefresh = () => {
@@ -70,33 +70,37 @@ export default function DashboardPage() {
   if (!user) return null; // brief flash before redirect check completes
 
   return (
-    <div className="min-h-screen bg-gray-50 p-8">
+    <div className="min-h-screen bg-[#FAF9F6] p-8">
       <div className="max-w-4xl mx-auto">
         <div className="flex justify-between items-center mb-8">
-          <h1 className="text-2xl font-bold">Welcome, {user.name} 👋</h1>
+          <h1 className="text-3xl font-bold text-[#1A1A1A] tracking-tight">
+            Welcome back, {user.name}
+          </h1>
           <button
             onClick={handleLogout}
-            className="text-sm text-gray-600 hover:text-red-600"
+            className="text-sm font-medium text-[#5B5952] hover:text-red-600 transition-colors"
           >
             Log out
           </button>
         </div>
 
         {loading ? (
-          <p className="text-gray-500">Loading your data...</p>
+          <p className="text-[#8A877D]">Loading your data...</p>
         ) : (
           <div className="grid md:grid-cols-2 gap-6">
             {/* Skills section */}
-            <div className="bg-white p-6 rounded-lg shadow-sm">
-              <h2 className="text-lg font-semibold mb-4">Your Skills</h2>
+            <div className="bg-white p-6 rounded-xl border border-[#E5E1D8] shadow-sm">
+              <h2 className="text-lg font-semibold mb-4 text-[#1A1A1A]">Your Skills</h2>
               {skills.length === 0 ? (
-                <p className="text-gray-500 text-sm">No skills added yet.</p>
+                <p className="text-[#8A877D] text-sm italic">
+                  No skills added yet — add your first one below.
+                </p>
               ) : (
                 <div className="flex flex-wrap gap-2">
                   {skills.map((s) => (
                     <span
                       key={s.skillId}
-                      className="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm"
+                      className="px-3 py-1 bg-[#EEF2FF] text-[#4338CA] font-medium rounded-full text-sm border border-[#E0E7FF]"
                     >
                       {s.skill.name}
                       {s.proficiency && ` · ${s.proficiency}`}
@@ -108,21 +112,26 @@ export default function DashboardPage() {
             </div>
 
             {/* Projects section */}
-            <div className="bg-white p-6 rounded-lg shadow-sm">
-              <h2 className="text-lg font-semibold mb-4">Your Projects</h2>
+            <div className="bg-white p-6 rounded-xl border border-[#E5E1D8] shadow-sm">
+              <h2 className="text-lg font-semibold mb-4 text-[#1A1A1A]">Your Projects</h2>
               {projects.length === 0 ? (
-                <p className="text-gray-500 text-sm">No projects added yet.</p>
+                <p className="text-[#8A877D] text-sm italic">
+                  No projects added yet — add your first one below.
+                </p>
               ) : (
                 <div className="space-y-3">
                   {projects.map((p) => (
-                    <div key={p.id} className="border-b pb-3 last:border-0">
-                      <h3 className="font-medium">{p.title}</h3>
+                    <div key={p.id} className="border-b border-[#E5E1D8] pb-3 last:border-0">
+                      <h3 className="font-medium text-[#1A1A1A]">{p.title}</h3>
                       {p.description && (
-                        <p className="text-sm text-gray-600">{p.description}</p>
+                        <p className="text-sm text-[#5B5952] mt-0.5">{p.description}</p>
                       )}
                       <div className="flex flex-wrap gap-1 mt-1">
                         {p.techStack.map((tech) => (
-                          <span key={tech} className="text-xs bg-gray-100 px-2 py-0.5 rounded">
+                          <span
+                            key={tech}
+                            className="text-xs bg-[#F5F3EE] text-[#5B5952] font-medium px-2 py-0.5 rounded border border-[#E5E1D8]"
+                          >
                             {tech}
                           </span>
                         ))}
