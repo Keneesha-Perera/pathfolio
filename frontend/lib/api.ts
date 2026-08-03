@@ -153,3 +153,19 @@ export async function deleteUserSkill(skillId: number, token: string) {
     throw new Error('Failed to remove skill');
   }
 }
+
+export async function analyzeSkillGap(targetRole: string, token: string) {
+  const res = await fetch(`${API_URL}/analyze/skill-gap`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ targetRole }),
+  });
+  if (!res.ok) {
+    const error = await res.json();
+    throw new Error(error.error || 'Failed to analyze skills');
+  }
+  return res.json();
+}

@@ -12,6 +12,7 @@ import {
 } from '@/lib/api';
 import AddSkillForm from './AddSkillForm';
 import AddProjectForm from './AddProjectForm';
+import SkillGapAnalyzer from './SkillGapAnalyzer';
 
 interface Skill {
   skillId: number;
@@ -149,129 +150,135 @@ export default function DashboardPage() {
         {loading ? (
           <p className="text-[#8A877D]">Loading your data...</p>
         ) : (
-          <div className="grid md:grid-cols-2 gap-6">
-            {/* Skills section */}
-            <div className="bg-white p-6 rounded-xl border border-[#E5E1D8] shadow-sm">
-              <h2 className="text-lg font-semibold mb-4 text-[#1A1A1A]">Your Skills</h2>
-              {skills.length === 0 ? (
-                <p className="text-[#8A877D] text-sm italic">
-                  No skills added yet — add your first one below.
-                </p>
-              ) : (
-                <div className="flex flex-wrap gap-2">
-                  {skills.map((s) => (
-                    <span
-                      key={s.skillId}
-                      className="group flex items-center gap-1.5 px-3 py-1 bg-[#EEF2FF] text-[#4338CA] font-medium rounded-full text-sm border border-[#E0E7FF]"
-                    >
-                      {s.skill.name}
-                      {s.proficiency && ` · ${s.proficiency}`}
-                      <button
-                        onClick={() => handleDeleteSkill(s.skillId)}
-                        className="text-[#4338CA] opacity-50 hover:opacity-100 hover:text-red-600 transition-opacity"
-                        title="Remove skill"
+          <>
+            <div className="grid md:grid-cols-2 gap-6">
+              {/* Skills section */}
+              <div className="bg-white p-6 rounded-xl border border-[#E5E1D8] shadow-sm">
+                <h2 className="text-lg font-semibold mb-4 text-[#1A1A1A]">Your Skills</h2>
+                {skills.length === 0 ? (
+                  <p className="text-[#8A877D] text-sm italic">
+                    No skills added yet — add your first one below.
+                  </p>
+                ) : (
+                  <div className="flex flex-wrap gap-2">
+                    {skills.map((s) => (
+                      <span
+                        key={s.skillId}
+                        className="group flex items-center gap-1.5 px-3 py-1 bg-[#EEF2FF] text-[#4338CA] font-medium rounded-full text-sm border border-[#E0E7FF]"
                       >
-                        ×
-                      </button>
-                    </span>
-                  ))}
-                </div>
-              )}
-              <AddSkillForm onSkillAdded={handleRefresh} />
-            </div>
+                        {s.skill.name}
+                        {s.proficiency && ` · ${s.proficiency}`}
+                        <button
+                          onClick={() => handleDeleteSkill(s.skillId)}
+                          className="text-[#4338CA] opacity-50 hover:opacity-100 hover:text-red-600 transition-opacity"
+                          title="Remove skill"
+                        >
+                          ×
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                )}
+                <AddSkillForm onSkillAdded={handleRefresh} />
+              </div>
 
-            {/* Projects section */}
-            <div className="bg-white p-6 rounded-xl border border-[#E5E1D8] shadow-sm">
-              <h2 className="text-lg font-semibold mb-4 text-[#1A1A1A]">Your Projects</h2>
-              {projects.length === 0 ? (
-                <p className="text-[#8A877D] text-sm italic">
-                  No projects added yet — add your first one below.
-                </p>
-              ) : (
-                <div className="space-y-3">
-                  {projects.map((p) =>
-                    editingProjectId === p.id ? (
-                      <div key={p.id} className="border border-[#E0E7FF] bg-[#EEF2FF] rounded-lg p-3 space-y-2">
-                        <input
-                          value={editForm.title}
-                          onChange={(e) => setEditForm({ ...editForm, title: e.target.value })}
-                          className="w-full px-2 py-1 border border-[#E5E1D8] rounded text-sm"
-                          placeholder="Title"
-                        />
-                        <textarea
-                          value={editForm.description}
-                          onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
-                          className="w-full px-2 py-1 border border-[#E5E1D8] rounded text-sm"
-                          placeholder="Description"
-                          rows={2}
-                        />
-                        <input
-                          value={editForm.techStack}
-                          onChange={(e) => setEditForm({ ...editForm, techStack: e.target.value })}
-                          className="w-full px-2 py-1 border border-[#E5E1D8] rounded text-sm"
-                          placeholder="Tech stack, comma separated"
-                        />
-                        <input
-                          value={editForm.link}
-                          onChange={(e) => setEditForm({ ...editForm, link: e.target.value })}
-                          className="w-full px-2 py-1 border border-[#E5E1D8] rounded text-sm"
-                          placeholder="Link"
-                        />
-                        <div className="flex gap-2">
-                          <button
-                            onClick={() => saveEditingProject(p.id)}
-                            className="text-sm bg-[#4F46E5] text-white px-3 py-1 rounded hover:bg-[#4338CA]"
-                          >
-                            Save
-                          </button>
-                          <button
-                            onClick={cancelEditingProject}
-                            className="text-sm text-[#5B5952] hover:text-[#1A1A1A]"
-                          >
-                            Cancel
-                          </button>
-                        </div>
-                      </div>
-                    ) : (
-                      <div key={p.id} className="border-b border-[#E5E1D8] pb-3 last:border-0">
-                        <div className="flex justify-between items-start">
-                          <h3 className="font-medium text-[#1A1A1A]">{p.title}</h3>
-                          <div className="flex gap-2 text-xs">
+              {/* Projects section */}
+              <div className="bg-white p-6 rounded-xl border border-[#E5E1D8] shadow-sm">
+                <h2 className="text-lg font-semibold mb-4 text-[#1A1A1A]">Your Projects</h2>
+                {projects.length === 0 ? (
+                  <p className="text-[#8A877D] text-sm italic">
+                    No projects added yet — add your first one below.
+                  </p>
+                ) : (
+                  <div className="space-y-3">
+                    {projects.map((p) =>
+                      editingProjectId === p.id ? (
+                        <div key={p.id} className="border border-[#E0E7FF] bg-[#EEF2FF] rounded-lg p-3 space-y-2">
+                          <input
+                            value={editForm.title}
+                            onChange={(e) => setEditForm({ ...editForm, title: e.target.value })}
+                            className="w-full px-2 py-1 border border-[#E5E1D8] rounded text-sm"
+                            placeholder="Title"
+                          />
+                          <textarea
+                            value={editForm.description}
+                            onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
+                            className="w-full px-2 py-1 border border-[#E5E1D8] rounded text-sm"
+                            placeholder="Description"
+                            rows={2}
+                          />
+                          <input
+                            value={editForm.techStack}
+                            onChange={(e) => setEditForm({ ...editForm, techStack: e.target.value })}
+                            className="w-full px-2 py-1 border border-[#E5E1D8] rounded text-sm"
+                            placeholder="Tech stack, comma separated"
+                          />
+                          <input
+                            value={editForm.link}
+                            onChange={(e) => setEditForm({ ...editForm, link: e.target.value })}
+                            className="w-full px-2 py-1 border border-[#E5E1D8] rounded text-sm"
+                            placeholder="Link"
+                          />
+                          <div className="flex gap-2">
                             <button
-                              onClick={() => startEditingProject(p)}
-                              className="text-[#4F46E5] hover:underline"
+                              onClick={() => saveEditingProject(p.id)}
+                              className="text-sm bg-[#4F46E5] text-white px-3 py-1 rounded hover:bg-[#4338CA]"
                             >
-                              Edit
+                              Save
                             </button>
                             <button
-                              onClick={() => handleDeleteProject(p.id)}
-                              className="text-red-500 hover:underline"
+                              onClick={cancelEditingProject}
+                              className="text-sm text-[#5B5952] hover:text-[#1A1A1A]"
                             >
-                              Delete
+                              Cancel
                             </button>
                           </div>
                         </div>
-                        {p.description && (
-                          <p className="text-sm text-[#5B5952] mt-0.5">{p.description}</p>
-                        )}
-                        <div className="flex flex-wrap gap-1 mt-1">
-                          {p.techStack.map((tech) => (
-                            <span
-                              key={tech}
-                              className="text-xs bg-[#F5F3EE] text-[#5B5952] font-medium px-2 py-0.5 rounded border border-[#E5E1D8]"
-                            >
-                              {tech}
-                            </span>
-                          ))}
+                      ) : (
+                        <div key={p.id} className="border-b border-[#E5E1D8] pb-3 last:border-0">
+                          <div className="flex justify-between items-start">
+                            <h3 className="font-medium text-[#1A1A1A]">{p.title}</h3>
+                            <div className="flex gap-2 text-xs">
+                              <button
+                                onClick={() => startEditingProject(p)}
+                                className="text-[#4F46E5] hover:underline"
+                              >
+                                Edit
+                              </button>
+                              <button
+                                onClick={() => handleDeleteProject(p.id)}
+                                className="text-red-500 hover:underline"
+                              >
+                                Delete
+                              </button>
+                            </div>
+                          </div>
+                          {p.description && (
+                            <p className="text-sm text-[#5B5952] mt-0.5">{p.description}</p>
+                          )}
+                          <div className="flex flex-wrap gap-1 mt-1">
+                            {p.techStack.map((tech) => (
+                              <span
+                                key={tech}
+                                className="text-xs bg-[#F5F3EE] text-[#5B5952] font-medium px-2 py-0.5 rounded border border-[#E5E1D8]"
+                              >
+                                {tech}
+                              </span>
+                            ))}
+                          </div>
                         </div>
-                      </div>
-                    )
-                  )}
-                </div>
-              )}
-              <AddProjectForm onProjectAdded={handleRefresh} />
+                      )
+                    )}
+                  </div>
+                )}
+                <AddProjectForm onProjectAdded={handleRefresh} />
+              </div>
             </div>
-          </div>
+
+            <div className="mt-6">
+              <SkillGapAnalyzer />
+            </div>
+          </>
         )}
       </div>
     </div>
