@@ -13,6 +13,7 @@ import {
 import AddSkillForm from './AddSkillForm';
 import AddProjectForm from './AddProjectForm';
 import SkillGapAnalyzer from './SkillGapAnalyzer';
+import Link from 'next/link';
 
 interface Skill {
   skillId: number;
@@ -136,15 +137,23 @@ export default function DashboardPage() {
     <div className="min-h-screen bg-[#FAF9F6] p-8">
       <div className="max-w-4xl mx-auto">
         <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold text-[#1A1A1A] tracking-tight">
-            Welcome back, {user.name}
-          </h1>
-          <button
-            onClick={handleLogout}
-            className="text-sm font-medium text-[#5B5952] hover:text-red-600 transition-colors"
-          >
-            Log out
-          </button>
+            <h1 className="text-3xl font-bold text-[#1A1A1A] tracking-tight">
+              Welcome back, {user.name}
+            </h1>
+            <div className="flex items-center gap-4">
+              <Link
+                href="/directory"
+                className="text-sm font-medium text-[#4F46E5] hover:underline"
+              >
+                Browse Directory
+              </Link>
+              <button
+                onClick={handleLogout}
+                className="text-sm font-medium text-[#5B5952] hover:text-red-600 transition-colors"
+              >
+                Log out
+              </button>
+            </div>
         </div>
 
         {loading ? (

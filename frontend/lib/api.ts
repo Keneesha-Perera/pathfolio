@@ -169,3 +169,12 @@ export async function analyzeSkillGap(targetRole: string, token: string) {
   }
   return res.json();
 }
+
+export async function getDirectory(skillFilter?: string) {
+  const url = skillFilter
+    ? `${API_URL}/directory?skill=${encodeURIComponent(skillFilter)}`
+    : `${API_URL}/directory`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error('Failed to fetch directory');
+  return res.json();
+}

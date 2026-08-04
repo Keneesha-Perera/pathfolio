@@ -6,6 +6,7 @@ import skillRoutes from './routes/skills';
 import projectRoutes from './routes/projects';
 import userSkillRoutes from './routes/userSkills';
 import analyzeRoutes from './routes/analyze';
+import directoryRoutes from './routes/directory';
 
 dotenv.config();
 
@@ -24,6 +25,7 @@ app.use('/api/skills', skillRoutes);
 app.use('/api/projects', projectRoutes);
 app.use('/api/user-skills', userSkillRoutes);
 app.use('/api/analyze', analyzeRoutes);
+app.use('/api/directory', directoryRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
