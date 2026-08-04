@@ -13,7 +13,12 @@ interface DirectoryUser {
     proficiency: string | null;
     skill: { name: string; category: string | null };
   }[];
-  projects: { id: number }[];
+  projects: {
+    id: number;
+    title: string;
+    techStack: string[];
+    link: string | null;
+  }[];
 }
 
 export default function DirectoryPage() {
@@ -116,19 +121,51 @@ export default function DirectoryPage() {
                 </a>
 
                 {u.skills.length === 0 ? (
-                  <p className="text-sm text-[#8A877D] italic">No skills listed yet.</p>
-                ) : (
-                  <div className="flex flex-wrap gap-1.5">
-                    {u.skills.map((s, i) => (
-                      <span
-                        key={i}
-                        className="text-xs bg-[#EEF2FF] text-[#4338CA] font-medium px-2 py-0.5 rounded-full border border-[#E0E7FF]"
-                      >
-                        {s.skill.name}
-                      </span>
-                    ))}
-                  </div>
-                )}
+                    <p className="text-sm text-[#8A877D] italic">No skills listed yet.</p>
+                    ) : (
+                    <div className="flex flex-wrap gap-1.5 mb-3">
+                        {u.skills.map((s, i) => (
+                        <span
+                            key={i}
+                            className="text-xs bg-[#EEF2FF] text-[#4338CA] font-medium px-2 py-0.5 rounded-full border border-[#E0E7FF]"
+                        >
+                            {s.skill.name}
+                        </span>
+                        ))}
+                    </div>
+                    )}
+
+                    {u.projects.length > 0 && (
+                    <div className="pt-3 border-t border-[#E5E1D8] space-y-2">
+                        {u.projects.map((p) => (
+                        <div key={p.id}>
+                            <div className="flex items-center justify-between">
+                            <span className="text-sm font-medium text-[#1A1A1A]">{p.title}</span>
+                            {p.link && (
+                               <a 
+                                href={p.link}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-xs text-[#4F46E5] hover:underline"
+                                >
+                                View →
+                                </a>
+                            )}
+                            </div>
+                            <div className="flex flex-wrap gap-1 mt-1">
+                            {p.techStack.map((tech) => (
+                                <span
+                                key={tech}
+                                className="text-xs bg-[#F5F3EE] text-[#5B5952] px-1.5 py-0.5 rounded border border-[#E5E1D8]"
+                                >
+                                {tech}
+                                </span>
+                            ))}
+                            </div>
+                        </div>
+                        ))}
+                    </div>
+                    )}
               </div>
             ))}
           </div>

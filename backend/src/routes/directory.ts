@@ -34,9 +34,14 @@ router.get('/', async (req, res) => {
             skill: { select: { name: true, category: true } },
           },
         },
-        projects: {
-          select: { id: true },
-        },
+            projects: {
+            select: {
+                id: true,
+                title: true,
+                techStack: true,
+                link: true,
+            },
+         },
       },
     });
 

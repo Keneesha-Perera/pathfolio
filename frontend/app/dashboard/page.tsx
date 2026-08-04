@@ -275,6 +275,16 @@ export default function DashboardPage() {
                               </span>
                             ))}
                           </div>
+                          {p.link && (
+                            <a
+                              href={p.link}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-xs text-[#4F46E5] hover:underline mt-1 inline-block"
+                            >
+                              View project →
+                            </a>
+                          )}
                         </div>
                       )
                     )}
